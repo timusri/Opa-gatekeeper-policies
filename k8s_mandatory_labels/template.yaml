@@ -1,0 +1,29 @@
+apiVersion: templates.gatekeeper.sh/v1beta1
+kind: ConstraintTemplate
+metadata:
+  name: k8smandatorylabels
+spec:
+  crd:
+    spec:
+      names:
+        kind: K8sMandatoryLabels
+        listKind: K8sMandatoryLabelsList
+        plural: k8smandatorylabels
+        singular: k8smandatorylabels
+      validation:
+        openAPIV3Schema:
+          properties:
+            labels:
+              type: array
+              items: string
+  targets:
+    - target: admission.k8s.gatekeeper.sh
+      rego: |
+         package k8smandatorylabels
+         violation[{"msg": msg, "details": {}}] {
+           provided := {label | input.review.object.metadata.labels[label]}
+           required := {label | label := input.parameters.labels[_]}
+           missing := required - provided
+           count(missing) > 0
+           msg := sprintf("\n\nDENIED. \nReason: Our org policy mandates the following labels: %v\nYou must provide these labels: %v", [required, missing])
+         }

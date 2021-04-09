@@ -1,0 +1,20 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: awesome-app
+  name: awesome-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: awesome-app
+  strategy: {}
+  template:
+    metadata:
+      labels:
+        app: awesome-app
+    spec:
+      containers:
+      - image: nginx
+        name: nginx
